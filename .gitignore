@@ -1,1 +1,7 @@
-/bin/NumberRenderer.class
+*.class
+*.dat
+*.properties
+nbproject/
+bin/
+*.project
+*.xml
