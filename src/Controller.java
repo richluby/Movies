@@ -3,11 +3,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.InputMismatchException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
@@ -40,8 +41,8 @@ public class Controller {
 	final private String MOVIE_DATA_PATH;
 	
 	/** creates a controller that is able to see the main application window *
-	 * @param mainFrame the main application window of the program
-	 * @return returns the Controller with all data initialized */
+	 * @param mf the main application window of the program
+	 */
 	public Controller(MainFrame mf) throws InputMismatchException {
 		mainFrame = mf;
 		autoImport = false;
@@ -64,10 +65,19 @@ public class Controller {
 	}
 	/** fills the movie formats that most computers can read */
 	private void fillMovieFormats(){
-		BufferedReader fileStream =new BufferedReader((new InputStreamReader(this.getClass().getResourceAsStream(
-				File.separator + "fileExtensions"))));
-		//StringBuffer fileContents = new StringBuffer();
+		BufferedReader fileStream = null;
+		File directory = null;
 		try {
+			directory = new File(
+					Preferences.class.getProtectionDomain().getCodeSource().getLocation()
+					.toURI());
+			JOptionPane.showMessageDialog(null, "Ext: " + directory.getAbsolutePath()
+										  + File.separator + "fileExtensions");
+			fileStream = new BufferedReader((new FileReader(directory)));
+						//File.separator + "fileExtensions"))));
+		
+		//StringBuffer fileContents = new StringBuffer();
+		
 			String tempLine = "";
 			while (fileStream.ready()) {
 				tempLine = fileStream.readLine();
@@ -75,6 +85,14 @@ public class Controller {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (URISyntaxException ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				fileStream.close();
+			} catch (IOException ex) {
+				Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+			}
 		}
 	}
 	/** returns the movie at the selected index
