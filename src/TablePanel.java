@@ -1,10 +1,3 @@
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -13,6 +6,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 /**@author Richard Luby, Copyright 2013*/
 /** this class contains the table panel, and a searchbar at the top */
@@ -50,7 +49,7 @@ public class TablePanel extends JPanel {
         //setup table
         setupTable();
         movieTable.addMouseListener(MyActionListeners.createUpdateCurrentMovieMouseListener());
-        movieTable.addKeyListener(MyActionListeners.createUpdateCurrntMovieKeyListener());
+        movieTable.addKeyListener(MyActionListeners.createUpdateCurrentMovieKeyListener());
         JScrollPane tableScroller = new JScrollPane(movieTable);
         gbConstraints.gridy = 1;
         gbConstraints.weighty = .2;
