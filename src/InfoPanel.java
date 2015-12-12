@@ -1,3 +1,5 @@
+import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -5,6 +7,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -14,7 +17,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-/**@author Richard Luby, Copyright 2013*/
+/*******************************************************************************
+ @author Richard Luby, Copyright (c) 2015.
+ Permission is granted to modify or redistribute this code provided that the source is
+ made available with the binaries, any contributing authors are mentioned, and no
+  profit is earned.
+ ******************************************************************************/
 /**extends a JPanel in order to present information for the current movie*/
 public class InfoPanel extends JPanel {
 	/**the movie currently being displayed*/
@@ -37,6 +45,12 @@ public class InfoPanel extends JPanel {
 	private JComboBox ratingOptions;
 	/** JList to hold the user rating */
 	private JComboBox userRatingList;
+	/** holds the name of series to which this movie belongs */
+	private JTextField seriesTextField;
+	/** holds the integer of the season to which this movie belongs */
+	private JComboBox<Integer> seasonIndex;
+	/** holds the integer of the serial order in which this movie goes for the season/series */
+	private JComboBox<Integer> serialOrder;
 	/** set up the notes from the user */
 	private JTextArea userNotes;
 	/** JPanel to contain buttons that are specific to the movie information */
@@ -69,8 +83,6 @@ public class InfoPanel extends JPanel {
 		dataFont = new Font(Font.SERIF, Font.ITALIC, 18);
 		//set the layout
 		GridBagLayout layout = new GridBagLayout();
-		//layout.preferredLayoutSize(this);
-		//layout.preferredLayoutSize(this);
 		setLayout(layout);
 		//set up rating list
 		Double[] ratings = new Double[11];
@@ -82,11 +94,23 @@ public class InfoPanel extends JPanel {
 		userRatingList.setSelectedItem(currentMovie.getUserRating());
 		//userRatingList.set
 		//set up the display
-		initializePanel(currentMovie);
+		initializePanel();
 	}
-	/** used to initialize the displays of the JPanel to the current movie
-	 * @param mov the movie to update for the JPanel */
-	public void initializePanel(Movie mov) {
+	/*                                  Layout
+	  |     Col 0           |           Col 1              |         Col 2
+	  -----------------------------------------------------------------------------
+	r0|     titleLabel      |         titleLabel           |   titleLabel
+	r1|     synopsisArea    |         synopsisArea         |   synopsisArea
+	r2|     synopsisArea    |         synopsisArea         |   synopsisArea
+	r3|     ratingOptions   |         certsArea            |   certsArea
+	r4|     singleLinePanel |         singleLinePanel      |   singleLinePanel
+	r5|     userNotes       |         userNotes            |   userNotes
+	r6|     userNotes       |         userNotes            |   userNotes
+	r7|     buttonPanel     |         buttonPanel          |   buttonPanel
+	*/
+
+	/** used to initialize the displays of the JPanel to the current movie */
+	public void initializePanel() {
 		removeAll();
 		int col = 1, row = 0, tGWidth = 1, tGHeight = 1, tAnchor = GridBagConstraints.CENTER, fill = GridBagConstraints.VERTICAL, txPad = 10, tyPad = 0, inset = 20;
 		final int defaultTextAreaColumns = 30;
@@ -95,7 +119,6 @@ public class InfoPanel extends JPanel {
 		GridBagConstraints gbConstraints = new GridBagConstraints(col, row, tGWidth, tGHeight, tXWeight, tYWeight, tAnchor, fill, insets,
 				txPad, tyPad);
 		//gbConstraints.fill = GridBagConstraints.BOTH;
-		currentMovie = mov;
 		//set the title label
 		titleLabel = new JLabel(currentMovie.getTitle());
 		titleLabel.setFont(titleFont);
@@ -128,7 +151,7 @@ public class InfoPanel extends JPanel {
 		certificationsTextArea.setColumns(defaultTextAreaColumns);
 		certificationsTextArea.setRows(3);
 		certificationsTextArea.setToolTipText("Rating as determined by the MPAA");
-		row = 4;//set in 4th row
+		row = 3;//set in 4th row
 		tGHeight = 1;
 		tGWidth = 2;
 		tYWeight = 0;
@@ -149,27 +172,20 @@ public class InfoPanel extends JPanel {
 		MPAARating = new JLabel("Rated " + currentMovie.getAgeRating());
 		MPAARating.setFont(dataFont);
 		add(MPAARating, gbConstraints);
-		//JLabel for the user rating
-		JLabel ratingLabel = new JLabel("Rating: ");
-		ratingLabel.setFont(dataFont);
-		ratingLabel.setToolTipText("User rating out of 5");
-		row = 5; //set in 5th row
+
+		//setup series panel for single line items
+		//****************************************
+		JPanel singleLinePanel = setupSingleLinePanel();
+		row = 4; //set in 5th row
 		col = 0;
-		tGWidth = 1;
+		tGWidth = 3;
+		tGHeight = 1;
+		tXWeight = .5;
+		tYWeight = 0;
+		fill = GridBagConstraints.HORIZONTAL;
 		gbConstraints = new GridBagConstraints(col, row, tGWidth, tGHeight, tXWeight, tYWeight, tAnchor, fill, insets, txPad, tyPad);
-		add(ratingLabel, gbConstraints);
-		//place in the jlist containing rating options
-		col = 1;
-		fill = GridBagConstraints.VERTICAL;
-		tAnchor = GridBagConstraints.LINE_START;
-		gbConstraints = new GridBagConstraints(col, row, tGWidth, tGHeight, tXWeight, tYWeight, tAnchor, fill, insets, txPad, tyPad);
-		userRatingList.setSelectedItem(currentMovie.getUserRating());
-		userRatingList.setVisible(false);
-		add(userRatingList, gbConstraints);
-		//place the label that contains the rating
-		userRatingLabel = new JLabel(currentMovie.getUserRating() + "");
-		userRatingLabel.setFont(dataFont);
-		add(userRatingLabel, gbConstraints);
+		add(singleLinePanel, gbConstraints);
+
 		//set up user notes
 		userNotes = new JTextArea(currentMovie.getUserNotes());
 		userNotes.setColumns(defaultTextAreaColumns);
@@ -179,7 +195,7 @@ public class InfoPanel extends JPanel {
 		userNotes.setFont(dataFont);
 		userNotes.setToolTipText("General notes or opinions");
 		JScrollPane noteScroller = new JScrollPane(userNotes);
-		row = 6;//set in row 6
+		row = 5;//set in row 6
 		col = 0;
 		tGWidth = 3;
 		tGHeight = 2;
@@ -198,7 +214,7 @@ public class InfoPanel extends JPanel {
 		deleteButton = new JButton("Delete");
 		deleteButton.addActionListener(new MyActionListeners.DeleteMovie(this));
 		buttonPanel.add(deleteButton, BorderLayout.WEST);
-		row = 8;//set in row 7
+		row = 7;//set in row 7
 		col = 0;
 		tGHeight = 1;
 		tYWeight = 0;
@@ -209,6 +225,60 @@ public class InfoPanel extends JPanel {
 		validate();
 		repaint();
 	}
+
+	/** @return returns a panel that contains the user rating, the season, and the serial order */
+	private JPanel setupSingleLinePanel(){
+		JPanel      panel  = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		GroupLayout.SequentialGroup singleLineGroup = layout.createSequentialGroup();
+		//JLabel for the user rating
+		JLabel ratingLabel = new JLabel("Rating: ");
+		ratingLabel.setFont(dataFont);
+		ratingLabel.setToolTipText("User rating out of 5");
+		singleLineGroup.addComponent(ratingLabel);
+		//place in the jlist containing rating options
+		userRatingList.setSelectedItem(currentMovie.getUserRating());
+		userRatingList.setVisible(false);
+		singleLineGroup.addComponent(userRatingList);
+		//place the label that contains the rating
+		userRatingLabel = new JLabel(currentMovie.getUserRating() + "");
+		userRatingLabel.setFont(dataFont);
+		singleLineGroup.addComponent(userRatingLabel);
+		//set up the series text field
+		seriesTextField = new JTextField();
+		seriesTextField.setColumns(20);
+		seriesTextField.setEditable(false);
+		seriesTextField.setEnabled(true);
+		seriesTextField.setHorizontalAlignment(JTextField.CENTER);
+		seriesTextField.setToolTipText("The series to which this movie belongs");
+		seriesTextField.setText(currentMovie.getSeries());
+		singleLineGroup.addComponent(new JPanel());
+		singleLineGroup.addComponent(seriesTextField);
+
+		//set up the season combo field
+		seasonIndex = new JComboBox<>(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+		                                            10});//placeholder until logic is implemented
+		//to count the number currently in a series
+		seasonIndex.setEditable(false);
+		seasonIndex.setEnabled(false);
+		seasonIndex.setSelectedIndex(currentMovie.getSeason() > 0 ? currentMovie.getSeason() : 0);
+		seasonIndex.setToolTipText("The season (if applicable) of this video");
+		singleLineGroup.addComponent(seasonIndex);
+
+		//set up the series combo field
+		serialOrder = new JComboBox<>(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+		                                            10});//placeholder until logic is implemented
+		//to count the number currently in a series
+		serialOrder.setEditable(false);
+		serialOrder.setEnabled(false);
+		serialOrder.setSelectedIndex(currentMovie.getSerialOrder());
+		serialOrder.setToolTipText("The index of this movie in the series or season");
+		singleLineGroup.addComponent(serialOrder);
+		return panel;
+	}
+
 	/** allows the user to edit the data displayed in the panel */
 	public void editDisplayedData(){
 		synopsisArea.setEditable(true);
@@ -220,6 +290,13 @@ public class InfoPanel extends JPanel {
 		userNotes.setEditable(true);
 		userNotes.setBackground(Color.GREEN);
 		ratingOptions.setVisible(true);
+		seriesTextField.setEnabled(true);
+		seriesTextField.setEditable(true);
+		seriesTextField.setBackground(Color.GREEN);
+		seasonIndex.setEditable(true);
+		seasonIndex.setEnabled(true);
+		serialOrder.setEditable(true);
+		serialOrder.setEnabled(true);
 		playButton.setVisible(false);
 		editButton.setVisible(false);
 		saveButton = new JButton("Save Changes");
@@ -229,33 +306,56 @@ public class InfoPanel extends JPanel {
 	/** updates the current movie with the new information, and then reverts to
 	 * being uneditable */
 	public void saveMovieInformation(){
-		//set synopsis
-		synopsisArea.setEditable(false);
-		synopsisArea.setBackground(Color.WHITE);
-		currentMovie.setSynopsis(synopsisArea.getText());
-		//set user rating
-		currentMovie.setUserRating((Double) userRatingList.getSelectedItem());
-		userRatingList.setVisible(false);
-		userRatingLabel.setText(currentMovie.getUserRating() + "");
-		userRatingLabel.setVisible(true);
-		//change certifications
-		certificationsTextArea.setEditable(false);
-		certificationsTextArea.setBackground(Color.WHITE);
-		currentMovie.setRatingCertifications(certificationsTextArea.getText());
-		//change MPAA rating
-		currentMovie.setAgeRating((String) ratingOptions.getSelectedItem());
-		ratingOptions.setVisible(false);
-		MPAARating.setText("Rated " + currentMovie.getAgeRating());
-		//change user notes
-		currentMovie.setUserNotes(userNotes.getText());
-		userNotes.setEditable(false);
-		userNotes.setBackground(Color.WHITE);
-		//switch buttons back
-		saveButton.setVisible(false);
-		playButton.setVisible(true);
-		editButton.setVisible(true);
-		//this movie has been modified
-		currentMovie.wasChanged(true);
+		try{
+			//set synopsis
+			synopsisArea.setEditable(false);
+			synopsisArea.setBackground(Color.WHITE);
+			currentMovie.setSynopsis(synopsisArea.getText());
+			//set user rating
+			currentMovie.setUserRating((Double) userRatingList.getSelectedItem());
+			userRatingList.setVisible(false);
+			userRatingLabel.setText(currentMovie.getUserRating() + "");
+			userRatingLabel.setVisible(true);
+			//change certifications
+			certificationsTextArea.setEditable(false);
+			certificationsTextArea.setBackground(Color.WHITE);
+			currentMovie.setRatingCertifications(certificationsTextArea.getText());
+			//change MPAA rating
+			currentMovie.setAgeRating((String) ratingOptions.getSelectedItem());
+			ratingOptions.setVisible(false);
+			MPAARating.setText("Rated " + currentMovie.getAgeRating());
+			//change series
+			if (!seriesTextField.getText().equals("")){
+				currentMovie.setSeries(seriesTextField.getText());
+			}
+			seriesTextField.setEditable(false);
+			seriesTextField.setBackground(Color.WHITE);
+			//change season
+			seasonIndex.setBorder(BorderFactory.createLineBorder(Color.RED, 3, false));
+			currentMovie.setSeason((Integer) seasonIndex.getSelectedItem());
+			seasonIndex.setEditable(false);
+			seasonIndex.setEnabled(false);
+			seasonIndex.setBorder(null);
+			//change order
+			serialOrder.setBorder(BorderFactory.createLineBorder(Color.RED, 3, false));
+			currentMovie.setSerialOrder((Integer) serialOrder.getSelectedItem());
+			serialOrder.setEditable(false);
+			serialOrder.setEnabled(false);
+			serialOrder.setBorder(null);
+			//change user notes
+			currentMovie.setUserNotes(userNotes.getText());
+			userNotes.setEditable(false);
+			userNotes.setBackground(Color.WHITE);
+			//switch buttons back
+			saveButton.setVisible(false);
+			playButton.setVisible(true);
+			editButton.setVisible(true);
+			//this movie has been modified
+			currentMovie.wasChanged(true);
+		} catch (ClassCastException e){
+			JOptionPane
+					.showMessageDialog(mainFrame, "An invalid value was entered.", "Error", JOptionPane.WARNING_MESSAGE);
+		}
 	}
 
 	/**
@@ -280,6 +380,9 @@ public class InfoPanel extends JPanel {
 		certificationsTextArea.setText(currentMovie.getRatingCertifications());
 		userRatingLabel.setText(currentMovie.getUserRating() + "");
 		userRatingList.setSelectedItem(currentMovie.getUserRating());
+		seriesTextField.setText(currentMovie.getSeries());
+		seasonIndex.setSelectedIndex(currentMovie.getSeason() > 0 ? currentMovie.getSeason() : 0);
+		serialOrder.setSelectedIndex(currentMovie.getSerialOrder());
 		userNotes.setText(currentMovie.getUserNotes());
 	}
 

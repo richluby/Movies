@@ -10,8 +10,12 @@ import java.util.InputMismatchException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- @author Richard Luby, Copyright 2013 */
+/*******************************************************************************
+ @author Richard Luby, Copyright (c) 2015.
+ Permission is granted to modify or redistribute this code provided that the source is
+ made available with the binaries, any contributing authors are mentioned, and no
+  profit is earned.
+ ******************************************************************************/
 
 /** this class contains the data for the program to run; methods build and
  * maintain the used database */
@@ -255,7 +259,7 @@ public class Controller{
 			movie.setAgeRating(dataLine.substring((Movie.TAG.MPAA_RATING + "").length()));
 			return Movie.TAG.MPAA_RATING + "";
 		} else if (dataLine.startsWith(Movie.TAG.SEASON + "")){
-			movie.setSeason(dataLine.substring((Movie.TAG.SEASON + "").length()));
+			movie.setSeason(Integer.parseInt(dataLine.substring((Movie.TAG.SEASON + "").length())));
 			return Movie.TAG.SEASON + "";
 		} else if (dataLine.startsWith(Movie.TAG.SERIES + "")){
 			movie.setSeries(dataLine.substring((Movie.TAG.SERIES + "").length()));
@@ -342,21 +346,21 @@ public class Controller{
 	}
 
 	/**
-	 sets the selected movie to the chosen index
-
-	 @param i the index at which to set the movie
-	 */
-	public void setSelectedMovie(int i){
-		selectedMovie = movieList.get(i);
-	}
-
-	/**
 	 sets the currently selected movie
 
 	 @param mov the movie to set as the current selection
 	 */
 	public void setSelectedMovie(Movie mov){
 		selectedMovie = mov;
+	}
+
+	/**
+	 sets the selected movie to the chosen index
+
+	 @param i the index at which to set the movie
+	 */
+	public void setSelectedMovie(int i){
+		selectedMovie = movieList.get(i);
 	}
 
 	/** deletes the specified movie from the disk, and any associated files

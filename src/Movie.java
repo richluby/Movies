@@ -4,8 +4,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-/**
- @author Richard Luby, Copyright 2013 */
+/*******************************************************************************
+ @author Richard Luby, Copyright (c) 2015.
+ Permission is granted to modify or redistribute this code provided that the source is
+ made available with the binaries, any contributing authors are mentioned, and no
+  profit is earned.
+ ******************************************************************************/
 
 /** this class contains data pertinent to each movie object */
 public class Movie{
@@ -61,9 +65,9 @@ public class Movie{
 	 */
 	private String series;
 	/**
-	 the season of the this movie
+	 the 0-based season of the this movie
 	 */
-	private String season;
+	private int season;
 	/**
 	 the 0-based serial order of this movie in the series or season
 	 */
@@ -96,7 +100,7 @@ public class Movie{
 		ratingCertifications = "";
 		userNotes = "";
 		movieWasChanged = false;
-		season = "";
+		season = -1;
 		series = "";
 		serialOrder = 0;
 	}
@@ -114,14 +118,14 @@ public class Movie{
 	}
 
 	/**
-	 @return returns the name of the season to which this movie belongs */
-	public String getSeason(){
+	 @return returns the 0-based index of the season to which this movie belongs */
+	public int getSeason(){
 		return season;
 	}
 
 	/**
 	 @param season the season in which this movie belongs */
-	public void setSeason(String season){
+	public void setSeason(int season){
 		this.season = season;
 	}
 
@@ -137,7 +141,9 @@ public class Movie{
 	 @param title the title to set */
 	public void setTitle(String title){
 		this.title = title;
-		//movieWasChanged(true);
+		if (series.equals("")){
+			series = title;
+		}
 	}
 
 	/**
@@ -323,7 +329,7 @@ public class Movie{
 			if (!series.equals("")){
 				writer.append(TAG.SERIES + "" + series + "\n");
 			}
-			if (!season.equals("")){
+			if (season >= 0){
 				writer.append(TAG.SEASON + "" + season + "\n");
 			}
 			if (serialOrder != 0){
