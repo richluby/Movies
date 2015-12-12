@@ -102,7 +102,7 @@ public class Movie{
 		movieWasChanged = false;
 		season = -1;
 		series = "";
-		serialOrder = 0;
+		serialOrder = 1;
 	}
 
 	/**

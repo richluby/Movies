@@ -94,7 +94,6 @@ public class Controller{
 			Logger.getLogger("Movies.Controller")
 			      .warning("Failed to read movie formats from file. Using fallback extensions.");
 			addFallbackExtensions();
-			e.printStackTrace();
 		} finally{
 			try{
 				if (fileStream != null){
@@ -111,6 +110,8 @@ public class Controller{
 		movieFormats.add("m4v");
 		movieFormats.add("mp4");
 		movieFormats.add("mov");
+		movieFormats.add("mpg");
+		movieFormats.add("mpeg");
 	}
 
 	/**
@@ -346,21 +347,21 @@ public class Controller{
 	}
 
 	/**
-	 sets the currently selected movie
-
-	 @param mov the movie to set as the current selection
-	 */
-	public void setSelectedMovie(Movie mov){
-		selectedMovie = mov;
-	}
-
-	/**
 	 sets the selected movie to the chosen index
 
 	 @param i the index at which to set the movie
 	 */
 	public void setSelectedMovie(int i){
 		selectedMovie = movieList.get(i);
+	}
+
+	/**
+	 sets the currently selected movie
+
+	 @param mov the movie to set as the current selection
+	 */
+	public void setSelectedMovie(Movie mov){
+		selectedMovie = mov;
 	}
 
 	/** deletes the specified movie from the disk, and any associated files

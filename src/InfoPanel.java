@@ -263,7 +263,7 @@ public class InfoPanel extends JPanel {
 		//to count the number currently in a series
 		seasonIndex.setEditable(false);
 		seasonIndex.setEnabled(false);
-		seasonIndex.setSelectedIndex(currentMovie.getSeason() > 0 ? currentMovie.getSeason() : 0);
+		seasonIndex.setSelectedIndex(currentMovie.getSeason() > 0 ? currentMovie.getSeason() : 1);
 		seasonIndex.setToolTipText("The season (if applicable) of this video");
 		singleLineGroup.addComponent(seasonIndex);
 
@@ -325,8 +325,8 @@ public class InfoPanel extends JPanel {
 			ratingOptions.setVisible(false);
 			MPAARating.setText("Rated " + currentMovie.getAgeRating());
 			//change series
-			if (!seriesTextField.getText().equals("")){
-				currentMovie.setSeries(seriesTextField.getText());
+			if (!seriesTextField.getText().trim().equals("")){
+				currentMovie.setSeries(seriesTextField.getText().trim());
 			}
 			seriesTextField.setEditable(false);
 			seriesTextField.setBackground(Color.WHITE);
