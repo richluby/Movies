@@ -146,41 +146,13 @@ private boolean populateArrayList(ArrayList<Movie> ml){
 	File[] movieFiles = prefs.getMainDataDirectory().listFiles();
 	Logger.getLogger("Movies.Controller.PopulateArrayList")
 	      .config("Data Directory: " + prefs.getMainDataDirectory().getAbsolutePath());
-	String movieNameWithExtension = "";
-	Movie  movie                  = null;
-	String extension              = "";
 	String lastTag                = "";
-	File   movieDataFile          = null;
-	BufferedReader fileReader = null;
+	Movie movie = null;
 	try{
-		for (int i = 0; i < movieFiles.length; i++){//loop to handle adding the file data for each movie file
-			if (movieFiles[i].isFile() && !movieFiles[i].isHidden()){//make sure to only check actual files
-				movieNameWithExtension = movieFiles[i].getName();
-				extension = movieNameWithExtension.substring(movieNameWithExtension.lastIndexOf('.') + 1).toLowerCase();
-				if (movieFormats.contains(extension)){//check if this format is in the movie list
-					movie = new Movie(movieNameWithExtension.substring(0, movieNameWithExtension.lastIndexOf('.')));
-					movie.setMovieFile(movieFiles[i]);
-					movieDataFile = new File(MOVIE_DATA_PATH + movie.getTitle() + File.separator + movie.getTitle() + ".dat");//create file to movie information
-					movie.setDataFile(movieDataFile);
-					if (checkExistence(new File(MOVIE_DATA_PATH + movie.getTitle()),
-					                   true) && checkExistence(movieDataFile, false)){
-						//checks for the file path directories, and then checks for the file itself, creating them if necessary
-						try{
-							fileReader = new BufferedReader(new FileReader(movieDataFile));
-							while (fileReader.ready()){
-								lastTag = parseDataLine(fileReader.readLine(), movie,
-								                        lastTag);//parses the line and updates the movie
-							}
-						} catch (IOException e){
-							e.printStackTrace();
-						} finally{
-							try{
-								fileReader.close();
-							} catch (IOException e){
-								e.printStackTrace();
-							}
-						}
-					}
+		for (File movieFile : movieFiles){//loop to handle adding the file data for each movie file
+			if (movieFile.isFile() && !movieFile.isHidden()){//make sure to only check actual files
+				movie = handleMovie(movieFile, lastTag);
+				if (movie != null){
 					ml.add(movie);
 				}
 			}
@@ -192,6 +164,40 @@ private boolean populateArrayList(ArrayList<Movie> ml){
 	movieList = ml;
 	selectedMovie = movieList.get(0);
 	return true;
+}
+
+private Movie handleMovie(File movieFile, String lastTag){
+	String movieNameWithExtension = movieFile.getName();
+	String extension              = movieNameWithExtension.substring(movieNameWithExtension.lastIndexOf('.') + 1)
+	                                                      .toLowerCase();
+	if (movieFormats.contains(extension)){//check if this format is in the movie list
+		Movie movie = new Movie(movieNameWithExtension.substring(0, movieNameWithExtension.lastIndexOf('.')));
+		movie.setMovieFile(movieFile);
+		File movieDataFile = new File(MOVIE_DATA_PATH + movie.getTitle() + File.separator + movie.getTitle() + ".dat");//create file to movie information
+		movie.setDataFile(movieDataFile);
+		if (checkExistence(new File(MOVIE_DATA_PATH + movie.getTitle()),
+		                   true) && checkExistence(movieDataFile, false)){
+			//checks for the file path directories, and then checks for the file itself, creating them if necessary
+			BufferedReader fileReader = null;
+			try{
+				fileReader = new BufferedReader(new FileReader(movieDataFile));
+				while (fileReader.ready()){
+					lastTag = parseDataLine(fileReader.readLine(), movie,
+					                        lastTag);//parses the line and updates the movie
+				}
+			} catch (IOException e){
+				e.printStackTrace();
+			} finally{
+				try{
+					fileReader.close();
+				} catch (IOException e){
+					e.printStackTrace();
+				}
+			}
+		}
+		return movie;
+	}
+	return null;
 }
 
 /**
@@ -293,6 +299,15 @@ private String parseDataLine(String dataLine, Movie movie, String lastTag){
 	}
 
 /**
+ sets the selected movie to the chosen index
+
+ @param i the index at which to set the movie
+ */
+public void setSelectedMovie(int i){
+	selectedMovie = movieList.get(i);
+}
+
+/**
  sets the currently selected movie
 
  @param mov the movie to set as the current selection
@@ -300,12 +315,6 @@ private String parseDataLine(String dataLine, Movie movie, String lastTag){
 public void setSelectedMovie(Movie mov){
 	selectedMovie = mov;
 }
-
-	/** sets the selected movie to the chosen index
-	 * @param i the index at which to set the movie */
-	public void setSelectedMovie(int i){
-		selectedMovie = movieList.get(i);
-	}
 
 	/** deletes the specified movie from the disk, and any associated files
 	 * @param currentMovie the movie to be deleted from the disk */
