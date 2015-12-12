@@ -237,6 +237,15 @@ private String parseDataLine(String dataLine, Movie movie, String lastTag){
 	} else if (dataLine.startsWith(Movie.TAG.MPAA_RATING + "")){
 		movie.setAgeRating(dataLine.substring((Movie.TAG.MPAA_RATING + "").length()));
 		return Movie.TAG.MPAA_RATING + "";
+	} else if (dataLine.startsWith(Movie.TAG.SEASON + "")){
+		movie.setSeason(dataLine.substring((Movie.TAG.SEASON + "").length()));
+		return Movie.TAG.SEASON + "";
+	} else if (dataLine.startsWith(Movie.TAG.SERIES + "")){
+		movie.setSeries(dataLine.substring((Movie.TAG.SERIES + "").length()));
+		return Movie.TAG.SERIES + "";
+	} else if (dataLine.startsWith(Movie.TAG.SERIAL_ORDER + "")){
+		movie.setSerialOrder(Integer.parseInt(dataLine.substring((Movie.TAG.SERIAL_ORDER + "").length())));
+		return Movie.TAG.SERIAL_ORDER + "";
 	} else if (dataLine.startsWith(Movie.TAG.NOTES + "")){
 		movie.setUserNotes(dataLine.substring((Movie.TAG.NOTES + "").length()));
 		return Movie.TAG.NOTES + "";
@@ -319,21 +328,21 @@ public Movie getSelectedMovie(){
 }
 
 /**
- sets the selected movie to the chosen index
-
- @param i the index at which to set the movie
- */
-public void setSelectedMovie(int i){
-	selectedMovie = movieList.get(i);
-}
-
-/**
  sets the currently selected movie
 
  @param mov the movie to set as the current selection
  */
 public void setSelectedMovie(Movie mov){
 	selectedMovie = mov;
+}
+
+/**
+ sets the selected movie to the chosen index
+
+ @param i the index at which to set the movie
+ */
+public void setSelectedMovie(int i){
+	selectedMovie = movieList.get(i);
 }
 
 /** deletes the specified movie from the disk, and any associated files

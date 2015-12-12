@@ -232,6 +232,12 @@ public void setMovieFile(File movieFile){
 	//movieWasChanged(true);
 }
 
+/**
+ @returns returns true if this movie is a member of a series, false otherwise */
+public boolean isSeriesMember(){
+	return !series.equals("");
+}
+
 /** returns true if the movie was changed
  * @return the movieWasChanged */
 public boolean wasChanged(){
