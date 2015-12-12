@@ -1,4 +1,4 @@
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -68,8 +68,7 @@ final private String MOVIE_DATA_PATH;
 
 			directory.setReadable(true);
 			directory.setWritable(true);
-			fileStream = new BufferedReader((new FileReader(directory)));
-						//File.separator + "fileExtensions"))));
+			fileStream = new BufferedReader((new FileReader(directory + File.separator + "fileExtensions")));
 		
 		//StringBuffer fileContents = new StringBuffer();
 		
@@ -110,12 +109,12 @@ private void checkFileSystem(){
  file if false
 
  @return returns true if the file/directory now exists */
-private boolean checkExistence(File directory, boolean checkForDirectory){
+public boolean checkExistence(File directory, boolean checkForDirectory){
 	boolean doesExist = true;
 	try{
 		if (checkForDirectory){
-			if (!directory.exists() && !directory
-					                            .mkdir()){//check if it exists; if not, make it; utilizes Java's shortcut boolean operations
+			if (!directory.exists() && !directory.mkdir()){
+				//check if it exists; if not, make it; utilizes Java's shortcut boolean operations
 				JOptionPane.showMessageDialog(null,
 				                              "There was an error creating " + directory.getCanonicalPath() + ".",
 				                              "Error",
@@ -145,14 +144,13 @@ private boolean checkExistence(File directory, boolean checkForDirectory){
 private boolean populateArrayList(ArrayList<Movie> ml){
 	ml = new ArrayList<Movie>(50); //start with an initial capacity of 50
 	File[] movieFiles = prefs.getMainDataDirectory().listFiles();
-	JOptionPane.showMessageDialog(null,
-	                              "Files: " + prefs.getMainDataDirectory().getAbsolutePath());
+	Logger.getLogger("Movies.Controller.PopulateArrayList")
+	      .config("Data Directory: " + prefs.getMainDataDirectory().getAbsolutePath());
 	String movieNameWithExtension = "";
 	Movie  movie                  = null;
 	String extension              = "";
 	String lastTag                = "";
 	File   movieDataFile          = null;
-	//String dataLine = "";
 	BufferedReader fileReader = null;
 	try{
 		for (int i = 0; i < movieFiles.length; i++){//loop to handle adding the file data for each movie file
@@ -164,7 +162,6 @@ private boolean populateArrayList(ArrayList<Movie> ml){
 					movie.setMovieFile(movieFiles[i]);
 					movieDataFile = new File(MOVIE_DATA_PATH + movie.getTitle() + File.separator + movie.getTitle() + ".dat");//create file to movie information
 					movie.setDataFile(movieDataFile);
-					//System.out.println(movieDataFile.getAbsolutePath());
 					if (checkExistence(new File(MOVIE_DATA_PATH + movie.getTitle()),
 					                   true) && checkExistence(movieDataFile, false)){
 						//checks for the file path directories, and then checks for the file itself, creating them if necessary
@@ -295,16 +292,19 @@ private String parseDataLine(String dataLine, Movie movie, String lastTag){
 		return selectedMovie;
 	}
 
+/**
+ sets the currently selected movie
+
+ @param mov the movie to set as the current selection
+ */
+public void setSelectedMovie(Movie mov){
+	selectedMovie = mov;
+}
+
 	/** sets the selected movie to the chosen index
 	 * @param i the index at which to set the movie */
 	public void setSelectedMovie(int i){
 		selectedMovie = movieList.get(i);
-	}
-
-/** sets the currently selected movie
-	 * @param mov the movie to set as the current selection */
-	public void setSelectedMovie(Movie mov){
-		selectedMovie = mov;
 	}
 
 	/** deletes the specified movie from the disk, and any associated files
