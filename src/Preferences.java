@@ -56,29 +56,11 @@ public void readPrefsFile(){
 	File           prefsFile = null;
 	BufferedReader reader    = null;
 	try{
-		if (!prefsFileLocation.equals("")){//in case a future implementation allows a choice
-			prefsFile = new File(prefsFileLocation);
-		} else {
-			String pathToLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()
-			                            .getPath();
-			prefsFile = new File((pathToLocation.substring(0, pathToLocation.lastIndexOf(File.separator) + 1) + "bin"));
-			if (!prefsFile.exists() && !controller.checkExistence(prefsFile, true)){
-				JOptionPane.showMessageDialog(null,
-				                              "The preferences folder could not be created. This is usually due to a permissions error from the execution directory.",
-				                              "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			prefsFile = new File(prefsFile.getAbsolutePath() + File.separator + "prefs");
-			if (!prefsFile.exists() && !controller.checkExistence(prefsFile, false)){
-				JOptionPane.showMessageDialog(null,
-				                              "The preferences file could not be created. This is usually due to a permissions error from the execution directory.",
-				                              "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		}
+		prefsFile = getPrefsFile();
 		String tempLine = "";
 		boolean lastOSwasWindows = false;
 		reader = new BufferedReader(new FileReader(prefsFile));
+		Logger.getLogger("Movies.Prefernces").info("Reading preferences: " + prefsFile.getAbsolutePath());
 		while (reader.ready()){//loop to parse through preferences
 			tempLine = reader.readLine();
 			if (tempLine.startsWith(LAST_OS_TAG)){
@@ -114,6 +96,32 @@ public void readPrefsFile(){
 		}
 	}
 }
+
+	/** @return returns the preferences file, or null if there is an error */
+	private File getPrefsFile() throws URISyntaxException{
+		File prefsFile = null;
+		if (!prefsFileLocation.equals("")){//in case a future implementation allows a choice
+			prefsFile = new File(prefsFileLocation);
+		} else {
+			String pathToLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()
+			                            .getPath();
+			prefsFile = new File((pathToLocation.substring(0, pathToLocation.lastIndexOf(File.separator) + 1) + "bin"));
+			if (!prefsFile.exists() && !controller.checkExistence(prefsFile, true)){
+				JOptionPane.showMessageDialog(null,
+				                              "The preferences folder could not be created. This is usually due to a permissions error from the execution directory.",
+				                              "Error", JOptionPane.ERROR_MESSAGE);
+				return null;
+			}
+			prefsFile = new File(prefsFile.getAbsolutePath() + File.separator + "prefs");
+			if (!prefsFile.exists() && !controller.checkExistence(prefsFile, false)){
+				JOptionPane.showMessageDialog(null,
+				                              "The preferences file could not be created. This is usually due to a permissions error from the execution directory.",
+				                              "Error", JOptionPane.ERROR_MESSAGE);
+				return null;
+			}
+		}
+		return prefsFile;
+	}
 
 /** prompts the user to select the folder containing the movies */
 public void chooseMovieFolder(){
@@ -200,13 +208,9 @@ public void readPrefsFile(String file){
 public void writePrefsFile(){
 	BufferedWriter writer = null;
 	try{
-		File binDirectory = new File("bin");
-		if (!binDirectory.exists() && !binDirectory.mkdir()){
-			JOptionPane.showMessageDialog(null, "There was an error saving your preferences", "Error",
-			                              JOptionPane.INFORMATION_MESSAGE);
-			//throw new IOException("Could not write prefs file");
-		}
-		File prefsFile = new File("bin", "prefs");//buildFileDirectory(new String[]{"bin", "prefs"}, false, true));
+
+		File prefsFile = getPrefsFile();
+		Logger.getLogger("Movies.Preferenes").info("Writing preferences: " + prefsFile.getAbsolutePath());
 		if (!prefsFile.exists() && !prefsFile.createNewFile()){
 			JOptionPane.showMessageDialog(null, "There was an error saving your preferences", "Error",
 			                              JOptionPane.INFORMATION_MESSAGE);
@@ -214,7 +218,8 @@ public void writePrefsFile(){
 		writer = new BufferedWriter(new FileWriter(prefsFile));//may have to get directory to current jar in order to make it work correctly
 		writer.write(LAST_OS_TAG + System.getProperty("os.name") + "\n");
 		writer.write(DATA_DIRECTORY_TAG + mainDataFolder.getCanonicalPath() + "\n");
-	} catch (IOException e){
+		writer.flush();
+	} catch (IOException | URISyntaxException e){
 		e.printStackTrace();
 	} finally{
 		try{
@@ -222,7 +227,6 @@ public void writePrefsFile(){
 				writer.close();
 			}
 		} catch (IOException e){
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

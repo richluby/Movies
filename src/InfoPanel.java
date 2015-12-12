@@ -1,11 +1,3 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -14,6 +6,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EtchedBorder;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 /**@author Richard Luby, Copyright 2013*/
 /**extends a JPanel in order to present information for the current movie*/
@@ -144,7 +143,6 @@ public class InfoPanel extends JPanel {
 		ratingOptions.setVisible(false);
 		col = 0;
 		tGWidth = 1;
-		tGWidth = 1;
 		gbConstraints = new GridBagConstraints(col, row, tGWidth, tGHeight, tXWeight, tYWeight, tAnchor, fill, insets, txPad, tyPad);
 		add(ratingOptions, gbConstraints);
 		//set up MPAA label
@@ -259,6 +257,18 @@ public class InfoPanel extends JPanel {
 		//this movie has been modified
 		currentMovie.wasChanged(true);
 	}
+
+	/**
+	 sets the current mainFrame and controller
+	 @param mf the application window to use
+	 */
+	public void setMainFrame(MainFrame mf){
+		mainFrame = mf;
+		controller = mainFrame.getController();
+		currentMovie = controller.getSelectedMovie();
+		setCurrentMovie(currentMovie);
+	}
+
 	/** allows the current movie to be changed and the display updated
 	 * @param mov the movie to set as the current movie */
 	public void setCurrentMovie(Movie mov){
@@ -272,14 +282,7 @@ public class InfoPanel extends JPanel {
 		userRatingList.setSelectedItem(currentMovie.getUserRating());
 		userNotes.setText(currentMovie.getUserNotes());
 	}
-	/** sets the current mainFrame and controller
-	 * @param mf the application window to use */
-	public void setMainFrame(MainFrame mf){
-		mainFrame = mf;
-		controller = mainFrame.getController();
-		currentMovie = controller.getSelectedMovie();
-		setCurrentMovie(currentMovie);
-	}
+
 	/** deletes the currently active movie in the infopanel */
 	public void deleteMovie(){
 		int response = JOptionPane.showConfirmDialog(mainFrame, "Are you sure you wish to delete " + currentMovie.getTitle() + "?",
