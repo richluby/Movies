@@ -51,6 +51,7 @@ public class Controller{
 	public Controller(MainFrame mf) throws InputMismatchException{
 		mainFrame = mf;
 		autoImport = false;
+		movieList = new ArrayList<Movie>(100);
 		String pathToCurrentLocation = "";
 		try{
 			pathToCurrentLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()
@@ -64,7 +65,7 @@ public class Controller{
 		fillMovieFormats();
 		checkFileSystem();
 		int errorCounter = 0;
-		while (!populateArrayList(movieList)){
+		while (!populateArrayList(prefs.getMainDataDirectory())){
 			errorCounter++;
 			if (errorCounter >= 5){
 				throw new InputMismatchException("The data could not be initialized.");
@@ -168,21 +169,23 @@ public class Controller{
 	 list
 
 	 @return returns true if the operation was successful */
-	private boolean populateArrayList(ArrayList<Movie> ml){
-		ml = new ArrayList<Movie>(50); //start with an initial capacity of 50
-		File[] movieFiles = prefs.getMainDataDirectory().listFiles();
-		Logger.getLogger("Movies.Controller.PopulateArrayList")
-		      .config("Data Directory: " + prefs.getMainDataDirectory().getAbsolutePath());
+	private boolean populateArrayList(File mainDataDirectory){
+		File[] movieFiles = mainDataDirectory.listFiles();
+		Logger.getLogger("Movies.Controller")
+		      .config("Data Directory: " + mainDataDirectory.getAbsolutePath());
 		String lastTag = "";
 		Movie  movie   = null;
 		try{
 			for (File movieFile : movieFiles){//loop to handle adding the file data for each movie file
 				if (movieFile != null && movieFile.isFile() && !movieFile
-						                                                .isHidden()){//make sure to only check actual files
+						                                                .isHidden()){ //make sure to only check actual files
 					movie = handleMovie(movieFile, lastTag);
 					if (movie != null){
-						ml.add(movie);
+						movieList.add(movie);
 					}
+				} else if (movieFile != null && movieFile.isDirectory() && !movieFile
+						                                                            .isHidden() && movieFile != mainDataDirectory){
+					populateArrayList(movieFile);
 				}
 			}
 		} catch (NullPointerException e){
@@ -190,7 +193,6 @@ public class Controller{
 			prefs.chooseMovieFolder();
 			return false;
 		}
-		movieList = ml;
 		if (movieList.size() > 0){
 			selectedMovie = movieList.get(0);
 		}
@@ -347,21 +349,21 @@ public class Controller{
 	}
 
 	/**
-	 sets the selected movie to the chosen index
-
-	 @param i the index at which to set the movie
-	 */
-	public void setSelectedMovie(int i){
-		selectedMovie = movieList.get(i);
-	}
-
-	/**
 	 sets the currently selected movie
 
 	 @param mov the movie to set as the current selection
 	 */
 	public void setSelectedMovie(Movie mov){
 		selectedMovie = mov;
+	}
+
+	/**
+	 sets the selected movie to the chosen index
+
+	 @param i the index at which to set the movie
+	 */
+	public void setSelectedMovie(int i){
+		selectedMovie = movieList.get(i);
 	}
 
 	/** deletes the specified movie from the disk, and any associated files
