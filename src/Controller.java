@@ -10,85 +10,94 @@ import java.util.InputMismatchException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**@author Richard Luby, Copyright 2013*/
+/**
+ @author Richard Luby, Copyright 2013 */
+
 /** this class contains the data for the program to run; methods build and
  * maintain the used database */
-public class Controller {
-	/** string to determine OS slash style */
-	final public static String WINDOWS_SLASH = "\\", NORMAL_SLASH = "/";
+public class Controller{
+/** string to determine OS slash style */
+final public static String WINDOWS_SLASH = "\\", NORMAL_SLASH = "/";
 /** data path to the movie information, with a trailing separator */
 final private String MOVIE_DATA_PATH;
-	/** the main application window */
-	private MainFrame mainFrame;
-	/** an arraylist to hold the array of movies in memory */
-	private ArrayList<Movie> movieList;
-	/** the currently selected movie */
-	private Movie selectedMovie;
+/** the main application window */
+private MainFrame mainFrame;
+/** an arraylist to hold the array of movies in memory */
+private ArrayList<Movie> movieList;
+/** the currently selected movie */
+private Movie selectedMovie;
 /** the directory wherein the user's movies are stored, as read from the
-	 * prefs file */
-	private String movieDirectory;
-	/** the preferences for this application */
-	private Preferences prefs;
-	/** the general movie formats */
-	private HashSet<String> movieFormats;
-	/** boolean to determine if the user wishes to automatically import movies
-	 * into the movie directory */
-	private boolean autoImport;
-	
-	/** creates a controller that is able to see the main application window *
-	 * @param mf the main application window of the program
-	 */
-	public Controller(MainFrame mf) throws InputMismatchException {
-		mainFrame = mf;
-		autoImport = false;
-		String pathToCurrentLocation = "";
-		try {
-			pathToCurrentLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath() + "";
-		} catch (URISyntaxException e1) {
-			e1.printStackTrace();
-		}
-		MOVIE_DATA_PATH = pathToCurrentLocation.substring(0, pathToCurrentLocation.lastIndexOf(File.separator) + 1) + "bin" + File.separator + "data" + File.separator;
-		movieFormats = new HashSet<String>(40);//initial capacity of 40
-		fillMovieFormats();
-		checkFileSystem();
-		int errorCounter = 0;
-		while (!populateArrayList(movieList)) {
-			errorCounter++;
-			if (errorCounter >= 5) { throw new InputMismatchException("The data could not be initialized."); }
-		}
-	}
-	/** fills the movie formats that most computers can read */
-	private void fillMovieFormats(){
-		BufferedReader fileStream = null;
-		File directory = null;
-		try {
-			directory = new File(
-					Preferences.class.getProtectionDomain().getCodeSource().getLocation()
-					.toURI());
+ * prefs file */
+private String movieDirectory;
+/** the preferences for this application */
+private Preferences prefs;
+/** the general movie formats */
+private HashSet<String> movieFormats;
+/**
+ boolean to determine if the user wishes to automatically import movies
+ into the movie directory
+ */
+private boolean autoImport;
 
-			directory.setReadable(true);
-			directory.setWritable(true);
-			fileStream = new BufferedReader((new FileReader(directory + File.separator + "fileExtensions")));
-		
-		//StringBuffer fileContents = new StringBuffer();
-		
-			String tempLine = "";
-			while (fileStream.ready()) {
-				tempLine = fileStream.readLine();
-				movieFormats.add(tempLine.toLowerCase());
-			}
-		} catch (IOException | URISyntaxException e){
-			e.printStackTrace();
-		} finally {
-			try {
-				if (fileStream != null){
-					fileStream.close();
-				}
-			} catch (IOException ex) {
-				Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-			}
+/**
+ creates a controller that is able to see the main application window *
+
+ @param mf the main application window of the program
+ */
+public Controller(MainFrame mf) throws InputMismatchException{
+	mainFrame = mf;
+	autoImport = false;
+	String pathToCurrentLocation = "";
+	try{
+		pathToCurrentLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()
+		                            .getPath() + "";
+	} catch (URISyntaxException e1){
+		e1.printStackTrace();
+	}
+	MOVIE_DATA_PATH = pathToCurrentLocation.substring(0, pathToCurrentLocation.lastIndexOf(File.separator) + 1) +
+	                  "bin" + File.separator + "data" + File.separator;
+	movieFormats = new HashSet<String>(40);//initial capacity of 40
+	fillMovieFormats();
+	checkFileSystem();
+	int errorCounter = 0;
+	while (!populateArrayList(movieList)){
+		errorCounter++;
+		if (errorCounter >= 5){
+			throw new InputMismatchException("The data could not be initialized.");
 		}
 	}
+}
+
+/** fills the movie formats that most computers can read */
+private void fillMovieFormats(){
+	BufferedReader fileStream = null;
+	File           directory  = null;
+	try{
+		directory = new File(Preferences.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+
+		directory.setReadable(true);
+		directory.setWritable(true);
+		fileStream = new BufferedReader((new FileReader(directory + File.separator + "fileExtensions")));
+
+		//StringBuffer fileContents = new StringBuffer();
+
+		String tempLine = "";
+		while (fileStream.ready()){
+			tempLine = fileStream.readLine();
+			movieFormats.add(tempLine.toLowerCase());
+		}
+	} catch (IOException | URISyntaxException e){
+		e.printStackTrace();
+	} finally{
+		try{
+			if (fileStream != null){
+				fileStream.close();
+			}
+		} catch (IOException ex){
+			Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+}
 
 /**
  this method checks the file system to see if the correct structure has
@@ -146,8 +155,8 @@ private boolean populateArrayList(ArrayList<Movie> ml){
 	File[] movieFiles = prefs.getMainDataDirectory().listFiles();
 	Logger.getLogger("Movies.Controller.PopulateArrayList")
 	      .config("Data Directory: " + prefs.getMainDataDirectory().getAbsolutePath());
-	String lastTag                = "";
-	Movie movie = null;
+	String lastTag = "";
+	Movie  movie   = null;
 	try{
 		for (File movieFile : movieFiles){//loop to handle adding the file data for each movie file
 			if (movieFile.isFile() && !movieFile.isHidden()){//make sure to only check actual files
@@ -166,14 +175,18 @@ private boolean populateArrayList(ArrayList<Movie> ml){
 	return true;
 }
 
+/**builds a movie from the given movie file
+ @param movieFile the file that contains the video file for the movie
+ @param lastTag the last tag that was processed
+ @return returns a fully populated movie, or null if there was an error in generating the movie object*/
 private Movie handleMovie(File movieFile, String lastTag){
 	String movieNameWithExtension = movieFile.getName();
-	String extension              = movieNameWithExtension.substring(movieNameWithExtension.lastIndexOf('.') + 1)
-	                                                      .toLowerCase();
+	String extension = movieNameWithExtension.substring(movieNameWithExtension.lastIndexOf('.') + 1)
+	                                         .toLowerCase();
 	if (movieFormats.contains(extension)){//check if this format is in the movie list
 		Movie movie = new Movie(movieNameWithExtension.substring(0, movieNameWithExtension.lastIndexOf('.')));
 		movie.setMovieFile(movieFile);
-		File movieDataFile = new File(MOVIE_DATA_PATH + movie.getTitle() + File.separator + movie.getTitle() + ".dat");//create file to movie information
+		File movieDataFile = new File(MOVIE_DATA_PATH + movie.getTitle() + File.separator + movie.getTitle() + ".dat"); //create file to movie information
 		movie.setDataFile(movieDataFile);
 		if (checkExistence(new File(MOVIE_DATA_PATH + movie.getTitle()),
 		                   true) && checkExistence(movieDataFile, false)){
@@ -183,13 +196,15 @@ private Movie handleMovie(File movieFile, String lastTag){
 				fileReader = new BufferedReader(new FileReader(movieDataFile));
 				while (fileReader.ready()){
 					lastTag = parseDataLine(fileReader.readLine(), movie,
-					                        lastTag);//parses the line and updates the movie
+					                        lastTag); //parses the line and updates the movie
 				}
 			} catch (IOException e){
 				e.printStackTrace();
 			} finally{
 				try{
-					fileReader.close();
+					if (fileReader != null){
+						fileReader.close();
+					}
 				} catch (IOException e){
 					e.printStackTrace();
 				}
@@ -238,65 +253,70 @@ private String parseDataLine(String dataLine, Movie movie, String lastTag){
 	}
 	return "";
 }
-	
-	/** returns the movie at the selected index
-	 * @param i the index at which to get the movie
-	 * @return returns the movie at the selected index */
-	public Movie getMovie(int i){
-		return movieList.get(i);
-	}
 
-	/** returns the movie with the selected title
-	 * @param title the title of the movie to find
-	 * @return returns the movie with the matching title, or null if no match
-	 *         was found */
-	public Movie getMovie(String title){
-		for (Movie mov : movieList) {
-			if (mov.getTitle().equals(title)) { return mov; }
+/** returns the movie at the selected index
+ * @param i the index at which to get the movie
+ * @return returns the movie at the selected index */
+public Movie getMovie(int i){
+	return movieList.get(i);
+}
+
+/**
+ returns the movie with the selected title
+
+ @param title the title of the movie to find
+
+ @return returns the movie with the matching title, or null if no match
+ was found */
+public Movie getMovie(String title){
+	for (Movie mov : movieList){
+		if (mov.getTitle().equals(title)){
+			return mov;
 		}
-		return null;
 	}
+	return null;
+}
 
-	/** returns the number of movies
-	 * @return returns the current number of movies */
-	public int getNumMovies(){
-		return movieList.size();
-	}
+/** returns the number of movies
+ * @return returns the current number of movies */
+public int getNumMovies(){
+	return movieList.size();
+}
 
-	/** replaces the movie at the specified index
-	 * @param i the index at which to replace this movie
-	 * @param mov the movie with which to replace the current one */
-	public void replaceMovie(int i, Movie mov){
-		movieList.remove(i);
-		movieList.add(i, mov);
-	}
+/** replaces the movie at the specified index
+ * @param i the index at which to replace this movie
+ * @param mov the movie with which to replace the current one */
+public void replaceMovie(int i, Movie mov){
+	movieList.remove(i);
+	movieList.add(i, mov);
+}
 
 /** writes relevant files to the disk, including updates to the database and
-	 * prefs file */
-	public void writeDataToDisk(){
-		if (prefs.changed()) {
-			prefs.writePrefsFile();
-			
-		}
-		for (int i = 0; i < movieList.size(); i++) {
-			if (movieList.get(i).wasChanged()) {
-				writeMovie(i);
-			}
-		}
-	}
+ * prefs file */
+public void writeDataToDisk(){
+	if (prefs.changed()){
+		prefs.writePrefsFile();
 
-	/** writes the selected movie to the disk; ************NOTE************ the
-	 * line is commented out
-	 * @param i the index at which to find the movie to write to disk */
-	public void writeMovie(int i){
-		movieList.get(i).writeMovieToDisk();
 	}
+	for (int i = 0; i < movieList.size(); i++){
+		if (movieList.get(i).wasChanged()){
+			writeMovie(i);
+		}
+	}
+}
+
+/** writes the selected movie to the disk; ************NOTE************ the
+ * line is commented out
+ * @param i the index at which to find the movie to write to disk */
+public void writeMovie(int i){
+	movieList.get(i).writeMovieToDisk();
+}
 
 /** returns the currently selected movie
-	 * @return returns the currently selected movie */
-	public Movie getSelectedMovie(){
-		return selectedMovie;
-	}
+ * @return returns the currently selected movie */
+public Movie getSelectedMovie(){
+	return selectedMovie;
+}
 
 /**
  sets the selected movie to the chosen index
@@ -316,10 +336,10 @@ public void setSelectedMovie(Movie mov){
 	selectedMovie = mov;
 }
 
-	/** deletes the specified movie from the disk, and any associated files
-	 * @param currentMovie the movie to be deleted from the disk */
-	public void deleteFromDisk(Movie currentMovie){
-		movieList.remove(currentMovie);
-		currentMovie.deleteFromDisk();
-	}
+/** deletes the specified movie from the disk, and any associated files
+ * @param currentMovie the movie to be deleted from the disk */
+public void deleteFromDisk(Movie currentMovie){
+	movieList.remove(currentMovie);
+	currentMovie.deleteFromDisk();
+}
 }
