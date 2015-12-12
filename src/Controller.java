@@ -87,6 +87,9 @@ private void fillMovieFormats(){
 			movieFormats.add(tempLine.toLowerCase());
 		}
 	} catch (IOException | URISyntaxException e){
+		Logger.getLogger("Movies.Controller")
+		      .warning("Failed to read movie formats from file. Using fallback extensions.");
+		addFallbackExtensions();
 		e.printStackTrace();
 	} finally{
 		try{
@@ -98,6 +101,13 @@ private void fillMovieFormats(){
 		}
 	}
 }
+
+	/** adds a limited number of movie formats that are playable by default on most systems */
+	private void addFallbackExtensions(){
+		movieFormats.add("m4v");
+		movieFormats.add("mp4");
+		movieFormats.add("mov");
+	}
 
 /**
  this method checks the file system to see if the correct structure has
@@ -119,30 +129,31 @@ private void checkFileSystem(){
 
  @return returns true if the file/directory now exists */
 public boolean checkExistence(File directory, boolean checkForDirectory){
-	boolean doesExist = true;
 	try{
 		if (checkForDirectory){
 			if (!directory.exists() && !directory.mkdir()){
 				//check if it exists; if not, make it; utilizes Java's shortcut boolean operations
+				Logger.getLogger("Movies.Controller").warning("No write permissions for: " + directory.getAbsolutePath());
 				JOptionPane.showMessageDialog(null,
 				                              "There was an error creating " + directory.getCanonicalPath() + ".",
 				                              "Error",
 				                              JOptionPane.ERROR_MESSAGE);
-				doesExist = false;
+				return false;
 			}
 		} else {
 			if (!directory.exists() && !directory.createNewFile()){//check if it exists; if not, make it
+				Logger.getLogger("Movies.Controller").warning("No write permissions for: " + directory.getAbsolutePath());
 				JOptionPane.showMessageDialog(null,
 				                              "There was an error creating " + directory.getCanonicalPath() + ".",
 				                              "Error",
 				                              JOptionPane.ERROR_MESSAGE);
-				doesExist = false;
+				return false;
 			}
 		}
 	} catch (IOException | NullPointerException e){
 		e.printStackTrace();
 	}
-	return doesExist;
+	return true;
 }
 
 /**
@@ -159,7 +170,7 @@ private boolean populateArrayList(ArrayList<Movie> ml){
 	Movie  movie   = null;
 	try{
 		for (File movieFile : movieFiles){//loop to handle adding the file data for each movie file
-			if (movieFile.isFile() && !movieFile.isHidden()){//make sure to only check actual files
+			if (movieFile != null && movieFile.isFile() && !movieFile.isHidden()){//make sure to only check actual files
 				movie = handleMovie(movieFile, lastTag);
 				if (movie != null){
 					ml.add(movie);
@@ -167,11 +178,14 @@ private boolean populateArrayList(ArrayList<Movie> ml){
 			}
 		}
 	} catch (NullPointerException e){
+		Logger.getLogger("Movies.Controller").warning("NullPointerException while parsing Movie Directory.");
 		prefs.chooseMovieFolder();
 		return false;
 	}
 	movieList = ml;
-	selectedMovie = movieList.get(0);
+	if (movieList.size() > 0){
+		selectedMovie = movieList.get(0);
+	}
 	return true;
 }
 
@@ -303,10 +317,7 @@ public void replaceMovie(int i, Movie mov){
 /** writes relevant files to the disk, including updates to the database and
  * prefs file */
 public void writeDataToDisk(){
-	if (prefs.changed()){
-		prefs.writePrefsFile();
-
-	}
+	prefs.writePrefsFile();
 	for (int i = 0; i < movieList.size(); i++){
 		if (movieList.get(i).wasChanged()){
 			writeMovie(i);
@@ -328,21 +339,21 @@ public Movie getSelectedMovie(){
 }
 
 /**
- sets the currently selected movie
-
- @param mov the movie to set as the current selection
- */
-public void setSelectedMovie(Movie mov){
-	selectedMovie = mov;
-}
-
-/**
  sets the selected movie to the chosen index
 
  @param i the index at which to set the movie
  */
 public void setSelectedMovie(int i){
 	selectedMovie = movieList.get(i);
+}
+
+/**
+ sets the currently selected movie
+
+ @param mov the movie to set as the current selection
+ */
+public void setSelectedMovie(Movie mov){
+	selectedMovie = mov;
 }
 
 /** deletes the specified movie from the disk, and any associated files
