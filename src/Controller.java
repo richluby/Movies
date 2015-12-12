@@ -296,9 +296,7 @@ public class Controller{
 
 	/**
 	 returns the movie with the selected title
-
 	 @param title the title of the movie to find
-
 	 @return returns the movie with the matching title, or null if no match
 	 was found */
 	public Movie getMovie(String title){
@@ -349,21 +347,19 @@ public class Controller{
 	}
 
 	/**
-	 sets the currently selected movie
-
-	 @param mov the movie to set as the current selection
-	 */
-	public void setSelectedMovie(Movie mov){
-		selectedMovie = mov;
-	}
-
-	/**
 	 sets the selected movie to the chosen index
-
 	 @param i the index at which to set the movie
 	 */
 	public void setSelectedMovie(int i){
 		selectedMovie = movieList.get(i);
+	}
+
+	/**
+	 sets the currently selected movie
+	 @param mov the movie to set as the current selection
+	 */
+	public void setSelectedMovie(Movie mov){
+		selectedMovie = mov;
 	}
 
 	/** deletes the specified movie from the disk, and any associated files

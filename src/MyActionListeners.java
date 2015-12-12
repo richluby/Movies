@@ -16,8 +16,12 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 
-/**
- @author Richard Luby, Copyright 2013 */
+/*******************************************************************************
+ @author Richard Luby, Copyright (c) 2015.
+ Permission is granted to modify or redistribute this code provided that the source is
+ made available with the binaries, any contributing authors are mentioned, and no
+  profit is earned.
+ ******************************************************************************/
 
 /** this class contains all the action listeners for the program */
 public class MyActionListeners{

@@ -4,16 +4,19 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-/**@author Richard Luby, Copyright 2013*/
+/*******************************************************************************
+ @author Richard Luby, Copyright (c) 2015.
+ Permission is granted to modify or redistribute this code provided that the source is
+ made available with the binaries, any contributing authors are mentioned, and no
+  profit is earned.
+ ******************************************************************************/
 /** this class contains the table panel, and a searchbar at the top */
 public class TablePanel extends JPanel {
     /** MainFrame of the application */
@@ -30,10 +33,6 @@ public class TablePanel extends JPanel {
         mainFrame = mf;
         controller = mainFrame.getController();
         //set up layout
-        Dimension preferredDim = mainFrame.getSize();
-        //preferredDim.width = (preferredDim.width / 2);
-        //preferredDim.height -= 60;
-        //setPreferredSize(preferredDim);
         setLayout(new GridBagLayout());
         int col = 0, row = 0, tGWidth = 1, tGHeight = 1, tAnchor = GridBagConstraints.CENTER, fill = GridBagConstraints.BOTH, txPad = 10, tyPad = 0, inset = 20;
         Insets insets = new Insets(inset, 0, 0, 0);
@@ -67,7 +66,6 @@ public class TablePanel extends JPanel {
                 Component c = super.prepareRenderer(renderer, row, column);
 
                 //  Alternate row color, set active row to med Gray
-
                 if (!isRowSelected(row)) {
                     c.setBackground((row % 2) == 0 ? getBackground() : Color.LIGHT_GRAY);
                 } else {
@@ -76,14 +74,6 @@ public class TablePanel extends JPanel {
                 return c;
             }
         };
-        //set column model renderers
-        TableColumnModel cols = movieTable.getColumnModel();
-        String[] titles = ((MovieTable) movieTable.getModel()).getColumnTitles();
-        for (int i = 0; i < cols.getColumnCount(); i++) {
-            if (titles[i].contains("Price")) {
-                cols.getColumn(i).setCellRenderer(NumberRenderer.getCurrencyRenderer());
-            }
-        }
 
         movieTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         //movieTable.setCellSelectionEnabled(true);

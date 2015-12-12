@@ -12,15 +12,17 @@ import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- @author Richard Luby, Copyright 2013 */
+/*******************************************************************************
+ @author Richard Luby, Copyright (c) 2015.
+ Permission is granted to modify or redistribute this code provided that the source is
+ made available with the binaries, any contributing authors are mentioned, and no
+  profit is earned.
+ ******************************************************************************/
 
 /** this class contains the preferences for the application */
 public class Preferences{
 	/** prefix to be used for the preferences file tag */
 	final static private String LAST_OS_TAG = "Last OS: ", DATA_DIRECTORY_TAG = "DataDir: ";
-/** the directory wherein the items are contained */
-//private String mainDataDirectory;
 	/** the location of the preferences file */
 	private String prefsFileLocation;
 	/**
